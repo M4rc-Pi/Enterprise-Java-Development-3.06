@@ -22,6 +22,11 @@ public class Author {
 	@ManyToMany(mappedBy="authors")
 	private List<Publication> publications = new ArrayList<Publication>();
 
+	public void addPublication(Publication publication) {
+		this.publications.add(publication);
+		publication.getAuthors().add(this);
+	}
+
 	public Long getId() {
 		return this.id;
 	}

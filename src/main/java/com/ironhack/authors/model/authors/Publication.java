@@ -3,6 +3,7 @@ package com.ironhack.authors.model.authors;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -27,6 +28,11 @@ public abstract class Publication {
 		      joinColumns={@JoinColumn(name="publicationId", referencedColumnName="id")},
 		      inverseJoinColumns={@JoinColumn(name="authorId", referencedColumnName="id")})
 	private Set<Author> authors = new HashSet<Author>();
+
+	public void addAuthor(Author author) {
+		this.authors.add(author);
+		author.getPublications().add(this);
+	}
 
 	public Long getId() {
 		return this.id;
@@ -77,9 +83,15 @@ public abstract class Publication {
 		return true;
 	}
 
+/*
 	@Override
 	public int hashCode() {
 		return 31;
+	}
+ */
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, version, title, publishingDate);
 	}
 
 	@Override
