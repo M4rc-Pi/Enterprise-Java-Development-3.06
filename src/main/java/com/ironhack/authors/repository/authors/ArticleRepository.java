@@ -13,27 +13,27 @@ import java.util.List;
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
 
-    @Query("select a from Article a inner join a.authors authors " +
-            "where authors.firstName = :firstName")
-    List<Article> findArticles_AuthorsFirstName (@Param("firstName") String firstName);
+    @Query("select a from Article a inner join a.users users " +
+            "where users.firstName = :firstName")
+    List<Article> findArticles_UsersFirstName (@Param("firstName") String firstName);
 
-    @Query("select a from Article a inner join a.authors authors " +
+    @Query("select a from Article a inner join a.users users " +
             "where a.title like concat('%', :title, '%') " +
-            "and authors.firstName = :firstName " +
-            "and authors.lastName = :lastName ")
-    List<Article> findByArticles_TitleContainsAndAuthor(
+            "and users.firstName = :firstName " +
+            "and users.lastName = :lastName ")
+    List<Article> findByArticles_TitleContainsAndUser(
             @Param("title") String title,
             @Param("firstName") String firstName,
             @Param("lastName") String lastName);
 
 
-    @Query("select a from Article a inner join a.authors authors " +
+    @Query("select a from Article a inner join a.users users " +
             "where a.title like concat('%', ?1, '%') " +
             "and a.publishingDate > ?2 " +
-            "and authors.firstName = ?3 " +
-            "and authors.lastName = ?4 " +
+            "and users.firstName = ?3 " +
+            "and users.lastName = ?4 " +
             "order by a.publishingDate DESC")
-    List<Article> findByArticles_TitleContainsPublishDateAndAuthor(
+    List<Article> findByArticles_TitleContainsPublishDateAndUser(
             String title,
             LocalDate publishingDate,
             String firstName,
@@ -45,11 +45,4 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
             "like upper(concat('%', :speciality, '%'))")
     List<Article> findBySpecialityContains(@Param("speciality") String speciality);
 
-
-
-/*
-    @Query("select a from Article a inner join a.authors authors " +
-            "having authors.id <= :maxAuthors")
-    List<Article> findArticles_HavingThreeOrMoreAuthors (@Param("maxAuthors") String maxAuthors);
-*/
 }

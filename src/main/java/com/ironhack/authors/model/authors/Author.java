@@ -8,25 +8,14 @@ import java.util.List;
 
 @Data
 @Entity
-public class Author {
+public class Author extends User{
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id", updatable = false, nullable = false)
-	private Long id;
-	
-	@Version
-	private int version;
-
-	private String firstName;
-
-	private String lastName;
-
-	@ManyToMany(mappedBy="authors")
-	private List<Publication> publications = new ArrayList<Publication>();
+	private String speciality;
+	@ManyToMany(mappedBy="users")
+	private List<Publication> createdPublications = new ArrayList<Publication>();
 
 	public void addPublication(Publication publication) {
-		this.publications.add(publication);
-		publication.getAuthors().add(this);
+		this.createdPublications.add(publication);
+		publication.getUsers().add(this);
 	}
 }

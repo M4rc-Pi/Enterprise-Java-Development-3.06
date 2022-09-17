@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
 
-    @Query("select b from Book b inner join b.authors authors " +
+    @Query("select b from Book b inner join b.users authors " +
             "where authors.firstName = :firstName and authors.lastName = :lastName " +
             "order by b.title")
     List<Book> findByAuthors_FirstNameAndAuthors_LastNameOrderByTitleAsc

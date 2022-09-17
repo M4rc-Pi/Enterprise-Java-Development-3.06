@@ -1,13 +1,8 @@
 package com.ironhack.authors.repository;
 
-import com.ironhack.authors.model.authors.Article;
-import com.ironhack.authors.model.authors.Author;
-import com.ironhack.authors.model.authors.BlogPost;
-import com.ironhack.authors.model.authors.Book;
-import com.ironhack.authors.repository.authors.ArticleRepository;
-import com.ironhack.authors.repository.authors.AuthorRepository;
-import com.ironhack.authors.repository.authors.BlogPostRepository;
-import com.ironhack.authors.repository.authors.BookRepository;
+import com.ironhack.authors.model.authors.*;
+import com.ironhack.authors.repository.authors.*;
+import com.ironhack.authors.utility.UserHandler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,6 +24,8 @@ class AuthorRepositoryTest {
     @Autowired
     private AuthorRepository authorRepository;
     @Autowired
+    private ReaderRepository readerRepository;
+    @Autowired
     private BookRepository bookRepository;
     @Autowired
     private BlogPostRepository blogPostRepository;
@@ -38,37 +36,22 @@ class AuthorRepositoryTest {
     @BeforeEach
     void setUp() {
 
-        Author paz = new Author();
-        paz.setFirstName("Paz");
-        paz.setLastName("Alegria");
-
-        authorRepository.save(paz);
-
-        Author esperanza = new Author();
-        esperanza.setFirstName("Esperanza");
-        esperanza.setLastName("Amor");
-
-        authorRepository.save(esperanza);
-
-        Author felicidad = new Author();
-        felicidad.setFirstName("Felicidad");
-        felicidad.setLastName("Abundante");
-
-        authorRepository.save(felicidad);
-
-        Author consuelo = new Author();
-        consuelo.setFirstName("Consuelo");
-        consuelo.setLastName("Sabio");
-
-        authorRepository.save(consuelo);
+        UserHandler userHandler = new UserHandler();
+        Map<String, User> users = userHandler.generateUsers();
+        authorRepository.saveAll(userHandler.getAuthors());
+        readerRepository.saveAll(userHandler.getReaders());
+        Author paz = (Author) users.get("Paz");
+        Author esperanza = (Author) users.get("Esperanza");
+        Reader felicidad = (Reader) users.get("Felicidad");
+        Reader consuelo = (Reader) users.get("Consuelo");
 
         Book javaBook = new Book();
         javaBook.setTitle("Java is Fun");
         javaBook.setNumPages(200);
         javaBook.setPublishingDate(LocalDate.of(2017, 4, 4));
 
-        javaBook.getAuthors().add(esperanza);
-        esperanza.getPublications().add(javaBook);
+        javaBook.getUsers().add(esperanza);
+        esperanza.getCreatedPublications().add(javaBook);
 
         bookRepository.save(javaBook);
 
@@ -78,10 +61,10 @@ class AuthorRepositoryTest {
         jpaBook.setPublishingDate(LocalDate.of(2022, 4, 4));
 
         //La asociación es bidireccional
-        jpaBook.getAuthors().add(esperanza);
-        jpaBook.getAuthors().add(paz);
-        esperanza.getPublications().add(jpaBook);
-        paz.getPublications().add(jpaBook);
+        jpaBook.getUsers().add(esperanza);
+        jpaBook.getUsers().add(paz);
+        esperanza.getCreatedPublications().add(jpaBook);
+        paz.getCreatedPublications().add(jpaBook);
 
         bookRepository.save(jpaBook);
 
@@ -90,43 +73,13 @@ class AuthorRepositoryTest {
         inheritancePost.setPublishingDate(LocalDate.of(2020, 1, 23));
         inheritancePost.setUrl("https://thorben-janssen.com/complete-guide-inheritance-strategies-jpa-hibernate/#Joined");
 
-        inheritancePost.getAuthors().add(paz);
-        paz.getPublications().add(inheritancePost);
+        inheritancePost.getUsers().add(paz);
+        paz.getCreatedPublications().add(inheritancePost);
 
         blogPostRepository.save(inheritancePost);
 
-        //ARTICULO 1
-        Article article1 = new Article();
-        article1.setTitle("JPA Spring");
-        article1.setPublishingDate(LocalDate.of(2020, 3, 28));
-        article1.setNumOfRevisions(101L);
-        article1.setNumberOfCitations(45L);
-        article1.setSpeciality("Software Development");
-
-        //Añadir articulo al Autor y autor a la Publicación
-        paz.addPublication(article1);
-        felicidad.addPublication(article1);
-        consuelo.addPublication(article1);
-
-        articleRepository.save(article1);
-
-        //ARTICULO 2
-        Article article2 = new Article();
-        article2.setTitle("Spring Framework Magic For Dummies");
-        article2.setPublishingDate(LocalDate.of(2022, 7, 12 ));
-        article2.setNumOfRevisions(2567L);
-        article2.setNumberOfCitations(450L);
-        article2.setSpeciality("Software Development");
-
-        paz.addPublication(article2);
-        consuelo.addPublication(article2);
-
-        articleRepository.save(article2);
-
-        authorRepository.save(paz);
-        authorRepository.save(esperanza);
-        authorRepository.save(consuelo);
-        authorRepository.save(felicidad);
+        authorRepository.saveAll(userHandler.getAuthors());
+        readerRepository.saveAll(userHandler.getReaders());
     }
 
     @AfterEach
@@ -145,7 +98,6 @@ class AuthorRepositoryTest {
 
         assertEquals(2,
                 bookRepository.findByAuthors_FirstNameAndAuthors_LastNameOrderByTitleAsc("Esperanza","Amor").size());
-
     }
 
     @Test
@@ -155,35 +107,5 @@ class AuthorRepositoryTest {
                         LocalDate.of(2019, 1, 23),
                         LocalDate.of(2021, 1, 23)
                 ).size());
-
-    }
-
-    @Test
-    void findArticles_AuthorsFirstName_successful() {
-        assertEquals(2, articleRepository.findArticles_AuthorsFirstName("Paz").size());
-    }
-
-    @Test
-    void findByArticles_TitleContainsAndAuthor_successful() {
-        //LocalDate date = LocalDate.of(2021, 1,1);
-        assertEquals(1, articleRepository.findByArticles_TitleContainsAndAuthor(
-                "Spring",
-                "Felicidad",
-                "Abundante").size());
-    }
-
-    @Test
-    void findByArticles_TitleContainsPublishDateAndAuthor_successful() {
-        LocalDate date = LocalDate.of(2021, 1,1);
-        assertEquals(1, articleRepository.findByArticles_TitleContainsPublishDateAndAuthor(
-                "Spring",
-                date,
-                "Paz",
-                "Alegria").size());
-    }
-
-    @Test
-    void findByArticles_SpecialityContains() {
-        assertEquals(2, articleRepository.findBySpecialityContains("Software").size());
     }
 }

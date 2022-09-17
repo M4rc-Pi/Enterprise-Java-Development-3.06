@@ -30,10 +30,6 @@ public abstract class Publication {
 		      name="PublicationAuthor",
 		      joinColumns={@JoinColumn(name="publicationId", referencedColumnName="id")},
 		      inverseJoinColumns={@JoinColumn(name="authorId", referencedColumnName="id")})
-	private Set<Author> authors = new HashSet<Author>();
+	private Set<User> users = new HashSet<User>();
 
-	public void addAuthor(Author author) {
-		this.authors.add(author);
-		author.getPublications().add(this);
-	}
 }
