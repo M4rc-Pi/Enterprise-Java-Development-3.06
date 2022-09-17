@@ -103,18 +103,11 @@ class AuthorRepositoryTest {
         article1.setNumberOfCitations(45L);
         article1.setSpeciality("Software Development");
 
+        //Añadir articulo al Autor y autor a la Publicación
         paz.addPublication(article1);
-/*
-        //Articulo-Autores
-        article1.getAuthors().add(felicidad);
-        article1.getAuthors().add(consuelo);
-        article1.getAuthors().add(paz);
+        felicidad.addPublication(article1);
+        consuelo.addPublication(article1);
 
-        //Autores-Articulo
-        felicidad.getPublications().add(article1);
-        consuelo.getPublications().add(article1);
-        paz.getPublications().add(article1);
-*/
         articleRepository.save(article1);
 
         //ARTICULO 2
@@ -125,18 +118,15 @@ class AuthorRepositoryTest {
         article2.setNumberOfCitations(450L);
         article2.setSpeciality("Software Development");
 
-        //Articulo-Autores
-        article2.getAuthors().add(consuelo);
-        article2.getAuthors().add(paz);
-
-        //Autores-Articulo
-        consuelo.getPublications().add(article2);
-        paz.getPublications().add(article2);
+        paz.addPublication(article2);
+        consuelo.addPublication(article2);
 
         articleRepository.save(article2);
 
         authorRepository.save(paz);
-
+        authorRepository.save(esperanza);
+        authorRepository.save(consuelo);
+        authorRepository.save(felicidad);
     }
 
     @AfterEach
@@ -168,25 +158,32 @@ class AuthorRepositoryTest {
 
     }
 
-
     @Test
     void findArticles_AuthorsFirstName_successful() {
         assertEquals(2, articleRepository.findArticles_AuthorsFirstName("Paz").size());
     }
 
-/*
+    @Test
+    void findByArticles_TitleContainsAndAuthor_successful() {
+        //LocalDate date = LocalDate.of(2021, 1,1);
+        assertEquals(1, articleRepository.findByArticles_TitleContainsAndAuthor(
+                "Spring",
+                "Felicidad",
+                "Abundante").size());
+    }
+
     @Test
     void findByArticles_TitleContainsPublishDateAndAuthor_successful() {
-        //LocalDate date = LocalDate.of(2021, 1,1);
+        LocalDate date = LocalDate.of(2021, 1,1);
         assertEquals(1, articleRepository.findByArticles_TitleContainsPublishDateAndAuthor(
                 "Spring",
-                //LocalDate.of(2021, 1,1),
+                date,
                 "Paz",
                 "Alegria").size());
     }
-*/
+
     @Test
     void findByArticles_SpecialityContains() {
-        assertEquals(2, articleRepository.findBySpecialityContains("Spring").size());
+        assertEquals(2, articleRepository.findBySpecialityContains("Software").size());
     }
 }

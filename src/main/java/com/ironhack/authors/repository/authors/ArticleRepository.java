@@ -17,15 +17,28 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
             "where authors.firstName = :firstName")
     List<Article> findArticles_AuthorsFirstName (@Param("firstName") String firstName);
 
-/*
+    @Query("select a from Article a inner join a.authors authors " +
+            "where a.title like concat('%', :title, '%') " +
+            "and authors.firstName = :firstName " +
+            "and authors.lastName = :lastName ")
+    List<Article> findByArticles_TitleContainsAndAuthor(
+            @Param("title") String title,
+            @Param("firstName") String firstName,
+            @Param("lastName") String lastName);
+
+
     @Query("select a from Article a inner join a.authors authors " +
             "where a.title like concat('%', ?1, '%') " +
-            //"and a.publishingDate > ?2" +
+            "and a.publishingDate > ?2 " +
             "and authors.firstName = ?3 " +
-            "and authors.lastName = ?4 ")
-            //"order by a.publishingDate DESC")
-    List<Article> findByArticles_TitleContainsPublishDateAndAuthor(String titleContains, String firstName, String lastName);
-*/
+            "and authors.lastName = ?4 " +
+            "order by a.publishingDate DESC")
+    List<Article> findByArticles_TitleContainsPublishDateAndAuthor(
+            String title,
+            LocalDate publishingDate,
+            String firstName,
+            String lastName);
+
 
     @Query("select a from Article a " +
             "where upper(a.speciality) " +

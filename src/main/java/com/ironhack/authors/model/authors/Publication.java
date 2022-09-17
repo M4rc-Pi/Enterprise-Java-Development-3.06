@@ -1,11 +1,14 @@
 package com.ironhack.authors.model.authors;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+@Data
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Publication {
@@ -32,73 +35,5 @@ public abstract class Publication {
 	public void addAuthor(Author author) {
 		this.authors.add(author);
 		author.getPublications().add(this);
-	}
-
-	public Long getId() {
-		return this.id;
-	}
-
-	public int getVersion() {
-		return this.version;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public LocalDate getPublishingDate() {
-		return publishingDate;
-	}
-
-	public void setPublishingDate(LocalDate publishingDate) {
-		this.publishingDate = publishingDate;
-	}
-	
-	public Set<Author> getAuthors() {
-		return authors;
-	}
-
-	public void setAuthors(Set<Author> authors) {
-		this.authors = authors;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof Publication)) {
-			return false;
-		}
-		Publication other = (Publication) obj;
-		if (id != null) {
-			if (!id.equals(other.id)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-/*
-	@Override
-	public int hashCode() {
-		return 31;
-	}
- */
-	@Override
-	public int hashCode() {
-		return Objects.hash(id, version, title, publishingDate);
-	}
-
-	@Override
-	public String toString() {
-		String result = getClass().getSimpleName() + " ";
-		if (title != null && !title.trim().isEmpty())
-			result += "title: " + title;
-		return result;
 	}
 }
